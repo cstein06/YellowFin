@@ -88,9 +88,16 @@ class YFOptimizer(object):
       self._clip_thresh_var = None
 
     # the underlying momentum optimizer
-    self._optimizer = tf.train.MomentumOptimizer(
-      self._lr_var * self.lr_factor, self._mu_var + delta_mu,
-      use_locking, name, use_nesterov)
+    if momentum > 0.0:
+      print("Using momentum")
+      self._optimizer = tf.train.MomentumOptimizer(
+        self._lr_var * self.lr_factor, self._mu_var + delta_mu,
+        use_locking, name, use_nesterov)
+    else:
+      # Remove momentum and rescale learning rate accordingly
+      print("Not using momentum")
+      self._optimizer = tf.train.GradientDescentOptimizer(
+        1.0 * self._lr_var * self.lr_factor / (1.0 - self._mu_var))
 
     # moving average for statistics
     self._beta = beta

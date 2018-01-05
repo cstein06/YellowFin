@@ -21,6 +21,13 @@ import resnet_model
 from resnet_utils import *
 import cifar_input
 
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--run_name', default="test_run")
+parser.add_argument('--mom', default=0.9, type=float)
+args = parser.parse_args()
+
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 # set up path and other parameters
 NUM_CLASSES = 10
@@ -40,7 +47,7 @@ hps_train = resnet_model.HParams(batch_size=batch_size_train,
                                 # note these dummy params lr, mom and clip are just for adaptation of the model implementation, it is not relevant to the optimizer
                                 min_lrn_rate=0.0001,
                                 lrn_rate=0.1,
-                                mom=0.9,
+                                mom=args.mom,
                                 clip_norm_base=10.0,
                                 num_residual_units=5,
                                 use_bottleneck=False,
@@ -58,10 +65,10 @@ sess = GetTrainingSession(model_train, gpu_mem_portion=gpu_mem_portion)
 
 
 # run steps
-general_log_dir = "../results"
+general_log_dir = "../results/"
 if not os.path.isdir(general_log_dir):
   os.mkdir(general_log_dir)
-log_dir = general_log_dir + "/test-release-cifar10-test-clip"
+log_dir = general_log_dir + args.run_name
 num_step = 40001
 display_interval=2500
 
